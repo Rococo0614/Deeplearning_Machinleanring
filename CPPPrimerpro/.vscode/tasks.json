@@ -3,7 +3,7 @@
 	"tasks": [
 		{
 			"type": "cppbuild",
-			"label": "C/C++: g++ 生成活动文件",
+			"label": "C/C++: g++ build active file",
 			"command": "/usr/bin/g++",
 			"args": [
 				"-fdiagnostics-color=always",
@@ -18,11 +18,8 @@
 			"problemMatcher": [
 				"$gcc"
 			],
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"detail": "编译器: /usr/bin/g++"
+			"group": "build",
+			"detail": "compiler: /usr/bin/g++"
 		}
 	]
 }
