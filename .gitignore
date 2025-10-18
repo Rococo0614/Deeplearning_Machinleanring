@@ -1,2 +1,4 @@
 /ViT/data/
 /d2l/data/
+
+*.pth
