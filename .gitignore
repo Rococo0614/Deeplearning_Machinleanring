@@ -1,0 +1,12 @@
+# 忽略数据集
+ViT/data/
+d2l/data/
+
+# 忽略模型权重文件
+*.pt
+*.pth
+
+# 忽略缓存和临时文件
+__pycache__/
+*.pyc
+*.log
