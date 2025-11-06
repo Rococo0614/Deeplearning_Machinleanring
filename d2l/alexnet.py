@@ -17,13 +17,13 @@ transform = transforms.Compose([
     transforms.Normalize((0.5,),(0.5,)) #这一步是做到了什么？Normalize(mean,std) 把0 1变为-1 1
 ])
 
-train_dataset = datasets.FashionMNIST(root = "./data", train = True, transform = transform, download = False)
-test_dataset = datasets.FashionMNIST(root = "./data", train = False, transform = transform, download = False)
+train_dataset = datasets.FashionMNIST(root = "./data", train = True, transform = transform, download = True)
+test_dataset = datasets.FashionMNIST(root = "./data", train = False, transform = transform, download = True)
 
-train_loader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True, num_workers = 2, pin_memory = True) 
+train_loader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True, num_workers = 0, pin_memory = True) 
 #加入了新变量 num_workers,是为了使用子进程来并行加载数据，linux多进程支持完善，一般为cpu核数/2
 #和pin_memory 把加载出来的张量放在固定内存页，使用时候直接把数据用DMA拷贝到GPU,只会在GPU上训练的时候产生作用
-test_loader = DataLoader(test_dataset, batch_size = batch_size, shuffle = False, num_workers = 2, pin_memory = True)
+test_loader = DataLoader(test_dataset, batch_size = batch_size, shuffle = False, num_workers = 0, pin_memory = True)
 
 classes = ['T-shirt/top','Trouser','Pullover','Dress','Coat','Sandal','Shirt','Sneaker','Bag','Ankle boot']
 
@@ -118,28 +118,28 @@ def train(model,dataloader,optimizer,device):
         running_total += y.size(0)
     return running_loss / running_total, running_correct / running_total
 
+if __name__ == '__main__':
+    train_losses, train_accs, test_losses, test_accs = [], [], [], []
+    start_time = time.time()
+    for epoch in range(1, num_epochs + 1):
+        t0 = time.time()
+        train_loss, train_acc = train(model, train_loader, optimizer, device)
+        test_loss, test_acc = evaluate(model, test_loader, device)
+        scheduler.step()
 
-train_losses, train_accs, test_losses, test_accs = [],[],[],[]
-start_time = time.time()
-for epoch in range(1, num_epochs + 1):
-    t0 = time.time()
-    train_loss,train_acc = train(model,train_loader,optimizer,device)
-    test_loss,test_acc = evaluate(model,test_loader,device)
-    scheduler.step()
+        train_losses.append(train_loss)
+        train_accs.append(train_acc)
+        test_losses.append(test_loss)
+        test_accs.append(test_acc)
 
-    train_losses.append(train_loss)
-    train_accs.append(train_acc)
-    test_losses.append(test_loss)
-    test_accs.append(test_acc)
+        t1 = time.time()
+        print(f"Epoch {epoch:2d}/{num_epochs} "
+              f"train_loss = {train_loss:.4f} train_acc = {train_acc:.4f} "
+              f"test_loss = {test_loss:.4f} test_acc = {test_acc:.4f} "
+              f"time = {(t1 - t0):.1f}s")
 
-    t1 = time.time()
-    print(f"Epoch {epoch:2d}/{num_epochs} "
-    f"train_loss = {train_loss:.4f} train_acc = {train_acc:.4f} "
-    f"test_loss = {test_loss:.4f} test_acc = {test_acc:.4f} " 
-    f"time = {(t1-t0):.1f}s")
-
-total_time = time.time() - start_time
-print(f"time = {total_time:.1f}s")
+    total_time = time.time() - start_time
+    print(f"time = {total_time:.1f}s")
 
 
 # -------------------------
